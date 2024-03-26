@@ -52,9 +52,17 @@ async def remove_contact(contact_id: int, db: Session = Depends(get_db)):
     return contact
 
 
-@router.get("/{contact_info}", response_model=ContactResponse)
+@router.get("/find/{contact_info}", response_model=List[ContactResponse])
 async def read_contacts_by_info(contact_info: str, db: Session = Depends(get_db)):
-    contact = await contacts_repository.get_contact_by_info(contact_info, db)
-    if contact is None:
+    contacts = await contacts_repository.get_contacts_by_info(contact_info, db)
+    if contacts is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
-    return contact
+    return contacts
+
+
+@router.get("/birthday", response_model=List[ContactResponse])
+async def read_contacts_by_info(db: Session = Depends(get_db)):
+    contacts = await contacts_repository.birthday(db)
+    if contacts is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contacts not found")
+    return contacts
